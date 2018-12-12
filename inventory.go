@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ansible-rackhd-inventory/rackhd"
+	"github.com/mlimaloureiro/ansible-rackhd-inventory/rackhd"
 	"encoding/json"
 	"fmt"
 	"github.com/alexflint/go-arg"
