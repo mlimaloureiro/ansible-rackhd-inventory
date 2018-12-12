@@ -6,3 +6,5 @@ rackhd_api_url: http://127.0.0.1:5000
 groups:
   - ceph-node
   - ceph-mon
+# TODO: define the correct name for this key
+filter_group: something_to_filter

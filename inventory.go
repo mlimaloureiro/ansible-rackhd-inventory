@@ -11,6 +11,7 @@ import (
 type props struct {
 	rackhdUrl string
 	groups    []string
+	filterGroup string
 }
 
 type CLIArgs struct {
@@ -19,16 +20,7 @@ type CLIArgs struct {
 }
 
 func main() {
-	config := viper.New()
-	config.AddConfigPath(".")
-	config.SetConfigName("config")
-	config.SetConfigType("yml")
-	err := config.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-	props := props{rackhdUrl: config.GetString("rackhd_api_url"), groups: config.GetStringSlice("groups")}
-
+	props := getPropsFromConfig()
 	args := CLIArgs{}
 	arg.MustParse(&args)
 	// If argument "--list" was set to true
@@ -49,6 +41,19 @@ func main() {
 	}
 }
 
+// getPropsFromConfig returns a props instance with values from config.yml
+func getPropsFromConfig() props {
+	config := viper.New()
+	config.AddConfigPath(".")
+	config.SetConfigName("config")
+	config.SetConfigType("yml")
+	err := config.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+	return props{rackhdUrl: config.GetString("rackhd_api_url"), groups: config.GetStringSlice("groups"), filterGroup: config.GetString("filter_group")}
+}
+
 // handleList returns a map with tags as keys and the list of hosts as values
 func handleList(props props) (map[string]interface{}, error){
 	// rackhdClient allows us to make calls to the REST API located at BaseUrl
@@ -58,7 +63,7 @@ func handleList(props props) (map[string]interface{}, error){
 	// ouput is used to return a map containing the host groups
 	output := make(map[string]interface{})
 	for _, group := range props.groups {
-		// Makes an request to the RackHD api
+		// Makes a request to the RackHD api
 		result, err := rackhdClient.GetTaggedNodesIpAddress(group)
 		if err != nil {
 			return output, err
@@ -84,9 +89,12 @@ func handleList(props props) (map[string]interface{}, error){
 	return output,nil
 }
 
-// TODO: Return hostvars values from this function
+// TODO: handleHost - Return hostvars values from this function
 func handleHost(host string, props props) (map[string]interface{}, error){
-	fmt.Println(host)
 	fmt.Printf("%+v\n", props)
+	// rackhdClient allows us to make calls to the REST API located at BaseUrl
+	rackhdClient := rackhd.Client{BaseUrl: props.rackhdUrl}
+	lookupTable, _ := rackhdClient.GetTaggedNodesIpAddress("")
+	fmt.Printf("%+v\n", lookupTable)
 	return nil, nil
 }
