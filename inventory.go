@@ -9,8 +9,8 @@ import (
 )
 
 type props struct {
-	rackhdUrl string
-	groups    []string
+	rackhdUrl   string
+	groups      []string
 	filterGroup string
 }
 
@@ -25,7 +25,7 @@ func main() {
 	arg.MustParse(&args)
 	// If argument "--list" was set to true
 	if args.List {
-		output ,err := handleList(props)
+		output, err := handleList(props)
 		if err != nil {
 			panic(fmt.Errorf("Fatal error handling list: %s \n", err))
 		}
@@ -55,7 +55,7 @@ func getPropsFromConfig() props {
 }
 
 // handleList returns a map with tags as keys and the list of hosts as values
-func handleList(props props) (map[string]interface{}, error){
+func handleList(props props) (map[string]interface{}, error) {
 	// rackhdClient allows us to make calls to the REST API located at BaseUrl
 	rackhdClient := rackhd.Client{BaseUrl: props.rackhdUrl}
 
@@ -86,11 +86,11 @@ func handleList(props props) (map[string]interface{}, error){
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
-	return output,nil
+	return output, nil
 }
 
 // TODO: handleHost - Return hostvars values from this function
-func handleHost(host string, props props) (map[string]interface{}, error){
+func handleHost(host string, props props) (map[string]interface{}, error) {
 	fmt.Printf("%+v\n", props)
 	// rackhdClient allows us to make calls to the REST API located at BaseUrl
 	rackhdClient := rackhd.Client{BaseUrl: props.rackhdUrl}
