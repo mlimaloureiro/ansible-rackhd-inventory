@@ -1,5 +1,6 @@
 ---
-rackhd_api_url: http://192.168.1.2:8080
+# rackhd_api_url: http://192.168.1.2:8080
+rackhd_api_url: http://127.0.0.1:5000
 # what groups do you want to create from your tags in rackhd ?
 # a tag in rackhd will create a group
 groups:
