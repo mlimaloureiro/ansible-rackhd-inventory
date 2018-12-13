@@ -6,6 +6,7 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/mlimaloureiro/ansible-rackhd-inventory/rackhd"
 	"github.com/spf13/viper"
+	"os"
 )
 
 type props struct {
@@ -43,15 +44,36 @@ func main() {
 
 // getPropsFromConfig returns a props instance with values from config.yml
 func getPropsFromConfig() props {
+	// config allows us to set the path for the configuration yaml file and retrieve its values
 	config := viper.New()
-	config.AddConfigPath(".")
-	config.SetConfigName("config")
-	config.SetConfigType("yml")
+
+	// envRackhdApiUrl is the RackHD REST API URL defined by an environment variable and
+	envRackhdApiUrl, envRackhdApiUrlOk := os.LookupEnv("RACK_HD_API_URL")
+	envAnsibleRackhdConfigPath, envAnsibleRackhdConfigPathOk := os.LookupEnv("ANSIBLE_RACKHD_CONFIG_PATH")
+	// If the "ANSIBLE_RACKHD_CONFIG_PATH" variable is set we define that as our config file
+	if envAnsibleRackhdConfigPathOk == true {
+		config.SetConfigFile(envAnsibleRackhdConfigPath)
+		// Else we define the config.yaml as the default config file
+	} else {
+		config.AddConfigPath(".")
+		config.SetConfigName("config")
+		config.SetConfigType("yml")
+	}
+	// ReadConfig reads our config file
 	err := config.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	return props{rackhdUrl: config.GetString("rackhd_api_url"), groups: config.GetStringSlice("groups"), filterGroup: config.GetString("filter_group")}
+
+	// If the "RACK_HD_API_URL" is set we define that as our URL API
+	var rackhdUrl string
+	if envRackhdApiUrlOk == true {
+		rackhdUrl = envRackhdApiUrl
+	} else {
+		rackhdUrl = config.GetString("rackhd_api_url")
+	}
+
+	return props{rackhdUrl:rackhdUrl, groups: config.GetStringSlice("groups"), filterGroup: config.GetString("filter_group")}
 }
 
 // handleList returns a map with tags as keys and the list of hosts as values
