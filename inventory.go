@@ -9,6 +9,11 @@ import (
 	"os"
 )
 
+const(
+	RackHdApiUrlEnvVarName  = "RACK_HD_API_URL"
+	AnsibleRackHdConfigPath = "ANSIBLE_RACKHD_CONFIG_PATH"
+)
+
 type props struct {
 	rackhdUrl   string
 	groups      []string
@@ -48,8 +53,8 @@ func getPropsFromConfig() props {
 	config := viper.New()
 
 	// envRackhdApiUrl is the RackHD REST API URL defined by an environment variable and
-	envRackhdApiUrl, envRackhdApiUrlOk := os.LookupEnv("RACK_HD_API_URL")
-	envAnsibleRackhdConfigPath, envAnsibleRackhdConfigPathOk := os.LookupEnv("ANSIBLE_RACKHD_CONFIG_PATH")
+	envRackhdApiUrl, envRackhdApiUrlOk := os.LookupEnv(RackHdApiUrlEnvVarName)
+	envAnsibleRackhdConfigPath, envAnsibleRackhdConfigPathOk := os.LookupEnv(AnsibleRackHdConfigPath)
 	// If the "ANSIBLE_RACKHD_CONFIG_PATH" variable is set we define that as our config file
 	if envAnsibleRackhdConfigPathOk == true {
 		config.SetConfigFile(envAnsibleRackhdConfigPath)

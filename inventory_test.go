@@ -7,12 +7,12 @@ import (
 
 func TestConfigReads(t *testing.T) {
 	var props props
-	rackhdUrl :=  "http://192.168.1.165:8080"
-	configPath :=  "./config.test.yaml"
+	const rackhdUrl 	=  "http://192.168.1.165:8080"
+	const configPath	=  "./config.test.yaml"
 	// Setting RACK_HD_API_URL and ANSIBLE_RACKHD_CONFIG_PATH
 	// as environment variables and checking if getPropsFromConfig is reading them
-	os.Setenv("RACK_HD_API_URL", rackhdUrl)
-	os.Setenv("ANSIBLE_RACKHD_CONFIG_PATH", configPath)
+	os.Setenv(RackHdApiUrlEnvVarName, rackhdUrl)
+	os.Setenv(AnsibleRackHdConfigPath, configPath)
 	props = getPropsFromConfig()
 	if props.rackhdUrl != rackhdUrl {
 		t.Errorf("\n%s  \n%s", props.rackhdUrl, rackhdUrl)
@@ -27,8 +27,8 @@ func TestConfigReads(t *testing.T) {
 		t.Errorf("\n%s  \n%s", props.filterGroup, "something_to_filter")
 	}
 	// Unsetting environment variables
-	os.Unsetenv("RACK_HD_API_URL")
-	os.Unsetenv("ANSIBLE_RACKHD_CONFIG_PATH")
+	os.Unsetenv(RackHdApiUrlEnvVarName)
+	os.Unsetenv(AnsibleRackHdConfigPath)
 }
 
 //TODO

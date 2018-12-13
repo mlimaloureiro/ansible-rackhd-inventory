@@ -10,6 +10,8 @@ import (
 const (
 	tagPathTemplate = "/api/current/tags/%s/nodes"
 	lookupPath      = "/api/2.0/lookups"
+	tagsPath		= "/api/current/tags"
+	nodesPath		= "/api/current/nodes"
 )
 
 // Client config
