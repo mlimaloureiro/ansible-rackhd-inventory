@@ -16,3 +16,6 @@ ansible-rackhd-inventory
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Ignore production config file
+config.yaml
