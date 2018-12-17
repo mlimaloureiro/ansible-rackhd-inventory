@@ -7,12 +7,16 @@ import (
 
 func TestConfigReads(t *testing.T) {
 	var props props
-	const rackhdUrl 	=  "http://192.168.1.165:8080"
-	const configPath	=  "./config.test.yaml"
-	// Setting RACK_HD_API_URL and ANSIBLE_RACKHD_CONFIG_PATH
-	// as environment variables and checking if getPropsFromConfig is reading them
-	os.Setenv(RackHdApiUrlEnvVarName, rackhdUrl)
-	os.Setenv(AnsibleRackHdConfigPath, configPath)
+	const rackhdUrl = "http://192.168.1.165:8080"
+	const configPath = "./config.test.yaml"
+	err := os.Setenv(RackHdApiUrlEnvVarName, rackhdUrl)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
+	err = os.Setenv(AnsibleRackHdConfigPath, configPath)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
 	props = getPropsFromConfig()
 	if props.rackhdUrl != rackhdUrl {
 		t.Errorf("\n%s  \n%s", props.rackhdUrl, rackhdUrl)
@@ -26,17 +30,17 @@ func TestConfigReads(t *testing.T) {
 	if props.filterGroup != "something_to_filter" {
 		t.Errorf("\n%s  \n%s", props.filterGroup, "something_to_filter")
 	}
-	// Unsetting environment variables
-	os.Unsetenv(RackHdApiUrlEnvVarName)
-	os.Unsetenv(AnsibleRackHdConfigPath)
+	err = os.Unsetenv(RackHdApiUrlEnvVarName)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
+	err = os.Unsetenv(AnsibleRackHdConfigPath)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
 }
 
 //TODO
-func TestHandleList(t *testing.T){
-
-}
-
-//TODO
-func TestHandleHost(t *testing.T){
+func TestHandleList(t *testing.T) {
 
 }
