@@ -1,14 +1,19 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 )
 
+const (
+	rackhdUrl  = "http://127.0.0.1:5000"
+	configPath = "./config.test.yaml"
+)
+
 func TestConfigReads(t *testing.T) {
 	var props props
-	const rackhdUrl = "http://192.168.1.165:8080"
-	const configPath = "./config.test.yaml"
 	err := os.Setenv(RackHdApiUrlEnvVarName, rackhdUrl)
 	if err != nil {
 		t.Errorf("%s\n", err)
@@ -40,7 +45,35 @@ func TestConfigReads(t *testing.T) {
 	}
 }
 
-//TODO
 func TestHandleList(t *testing.T) {
+	err := os.Setenv(AnsibleRackHdConfigPath, configPath)
+	if err != nil {
+		t.Errorf("%s\n", err)
 
+		return
+	}
+	err = os.Setenv(AnsibleRackHdConfigPath, configPath)
+	if err != nil {
+		t.Errorf("%s\n", err)
+
+		return
+	}
+	props := getPropsFromConfig()
+	output, err := handleList(props)
+	if value, ok := output["all"]; !ok {
+		t.Errorf("Expected key 'all' got %s\n", value)
+	}
+	if value, ok := output["ungrouped"]; !ok {
+		t.Errorf("Expected key 'ungrouped' got %s\n", value)
+	}
+	marshalResult, _ := json.MarshalIndent(output, "", "  ")
+	fmt.Println(string(marshalResult))
+	err = os.Unsetenv(RackHdApiUrlEnvVarName)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
+	err = os.Unsetenv(AnsibleRackHdConfigPath)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
 }

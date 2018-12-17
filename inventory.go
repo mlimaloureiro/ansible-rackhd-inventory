@@ -41,13 +41,12 @@ func main() {
 	}
 }
 
-// getPropsFromConfig returns a props instance with values from config.yml
 func getPropsFromConfig() props {
 	config := viper.New()
 
 	envRackhdApiUrl, envRackhdApiUrlOk := os.LookupEnv(RackHdApiUrlEnvVarName)
 	envAnsibleRackhdConfigPath, envAnsibleRackhdConfigPathOk := os.LookupEnv(AnsibleRackHdConfigPath)
-	if envAnsibleRackhdConfigPathOk == true {
+	if envAnsibleRackhdConfigPathOk {
 		config.SetConfigFile(envAnsibleRackhdConfigPath)
 	} else {
 		config.AddConfigPath(".")
@@ -60,7 +59,7 @@ func getPropsFromConfig() props {
 	}
 
 	var rackhdUrl string
-	if envRackhdApiUrlOk == true {
+	if envRackhdApiUrlOk {
 		rackhdUrl = envRackhdApiUrl
 	} else {
 		rackhdUrl = config.GetString("rackhd_api_url")
@@ -98,6 +97,5 @@ func handleList(props props) (map[string]interface{}, error) {
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
-
 	return output, nil
 }
