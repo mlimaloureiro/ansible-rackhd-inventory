@@ -10,8 +10,8 @@ import (
 const (
 	tagPathTemplate = "/api/current/tags/%s/nodes"
 	lookupPath      = "/api/2.0/lookups"
-	tagsPath		= "/api/current/tags"
-	nodesPath		= "/api/current/nodes"
+	tagsPath        = "/api/current/tags"
+	nodesPath       = "/api/current/nodes"
 )
 
 // Client config
@@ -38,6 +38,9 @@ type LookupItem struct {
 	IpAddress string `json:"ipAddress"`
 }
 
+// TagList holds a list of all tags
+type TagsList []string
+
 // GetTaggedNodesIpAddress find nodes with specific tag
 func (c Client) GetTaggedNodesIpAddress(tagName string) ([]string, error) {
 	nodes, err := c.fetchTaggedNodes(tagName)
@@ -51,6 +54,20 @@ func (c Client) GetTaggedNodesIpAddress(tagName string) ([]string, error) {
 	}
 
 	return c.filterIpAddresses(lookupTable, nodes), nil
+}
+
+func (c Client) GetAllTags() (TagsList, error) {
+	tagRequest, err := c.request(tagsPath)
+	if err != nil {
+		return TagsList{}, err
+	}
+	var tagsList TagsList
+	err = json.Unmarshal(tagRequest, &tagsList)
+	if err != nil {
+		return TagsList{}, err
+	}
+
+	return tagsList, nil
 }
 
 func (c Client) fetchTaggedNodes(tagName string) (NodesWithTag, error) {
