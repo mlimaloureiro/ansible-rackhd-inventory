@@ -39,6 +39,7 @@ func main() {
 
 		return
 	}
+
 }
 
 func getPropsFromConfig() props {
@@ -70,15 +71,23 @@ func getPropsFromConfig() props {
 		filterGroup: config.GetString("filter_group")}
 }
 
-func handleList(props props) (map[string]interface{}, error) {
+func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error) {
 	rackhdClient := rackhd.Client{BaseUrl: props.rackhdUrl}
 
 	hostvars := Hostvars{}
-	output := make(map[string]interface{})
+	groups := make(map[string]interface{})
+	if len(props.groups) == 0 {
+		var err error
+		props.groups, err = rackhdClient.GetAllTags()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	for _, group := range props.groups {
 		result, err := rackhdClient.GetTaggedNodesIpAddress(group)
 		if err != nil {
-			return output, err
+			return groups, nil, err
 		}
 		hostsFoundByTag := len(result) == 0
 		if !hostsFoundByTag {
@@ -90,12 +99,22 @@ func handleList(props props) (map[string]interface{}, error) {
 				}
 				groupItem.Hosts = append(groupItem.Hosts, item)
 			}
-			output[group] = groupItem
+			groups[group] = groupItem
 		}
 	}
 
+	return groups, hostvars, nil
+}
+
+func handleList(props props) (map[string]interface{}, error) {
+	output := make(map[string]interface{})
+	groups, hostvars, err := getGroupNodesAndVars(props)
+
+	for groupName, hosts := range groups {
+		output[groupName] = hosts
+	}
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
-	return output, nil
+	return output, err
 }
