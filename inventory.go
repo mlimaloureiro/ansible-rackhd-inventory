@@ -109,12 +109,44 @@ func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error)
 func handleList(props props) (map[string]interface{}, error) {
 	output := make(map[string]interface{})
 	groups, hostvars, err := getGroupNodesAndVars(props)
+	if err != nil {
 
-	for groupName, hosts := range groups {
-		output[groupName] = hosts
+		return nil, err
+	}
+
+	if props.filterGroup != "" {
+		props.groups = []string{props.filterGroup}
+		filterGroup, _, err := getGroupNodesAndVars(props)
+
+		if err != nil {
+			return nil, err
+		}
+
+		filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
+		for groupName, groupItem := range groups {
+			groupItem, _ := groupItem.(GroupItem)
+			intersectionOfGroups := IntersectionOfTwoSlices(groupItem.Hosts, filterGroupItem.Hosts)
+			if len(intersectionOfGroups) > 0 {
+				groups[groupName] =
+					GroupItem{
+						Hosts: intersectionOfGroups}
+			}
+		}
+
+		for hostname := range hostvars {
+			if !ValueInSlice(filterGroupItem.Hosts, hostname) {
+				delete(hostvars, hostname)
+			}
+		}
+
+	}
+
+	for groupName, groupItem := range groups {
+		output[groupName] = groupItem
 	}
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
+
 	return output, err
 }

@@ -1,6 +1,6 @@
 package main
 
-func AppendUnique(uniqueSlice []string, newValue string) ([]string, bool) {
+func AppendUniqueSlice(uniqueSlice []string, newValue string) ([]string, bool) {
 	for _, value := range uniqueSlice {
 		if value == newValue {
 
@@ -11,7 +11,7 @@ func AppendUnique(uniqueSlice []string, newValue string) ([]string, bool) {
 	return append(uniqueSlice, newValue), true
 }
 
-func ValueInSlice(valueToCheck string, slice []string) bool {
+func ValueInSlice(slice []string, valueToCheck string) bool {
 	for _, val := range slice {
 		if val == valueToCheck {
 
@@ -33,4 +33,28 @@ func UniqueSlice(inputSlice []string) []string {
 	}
 
 	return uniqueSlice
+}
+
+func IntersectionOfTwoSlices(sliceA []string, sliceB []string) []string {
+	intersectionMap := make(map[string]bool)
+	var intersectionSlice []string
+
+	for _, value := range sliceA {
+		intersectionMap[value] = true
+	}
+	for _, value := range sliceB {
+		if _, ok := intersectionMap[value]; ok {
+			intersectionSlice = append(intersectionSlice, value)
+		}
+	}
+	return intersectionSlice
+}
+
+func sliceToInterface(slice []string) interface{} {
+	newInterface := make([]interface{}, len(slice), len(slice))
+	for value := range slice {
+		newInterface[value] = slice[value]
+	}
+
+	return newInterface
 }
