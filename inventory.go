@@ -57,22 +57,20 @@ func getPropsFromConfig() props {
 	envRackhdApiUrl := config.GetString(RackHdApiUrlEnvVarName)
 	envAnsibleRackhdConfigPath := config.GetString(AnsibleRackHdConfigPath)
 
-	if envAnsibleRackhdConfigPath != "" {
-		config.SetConfigFile(envAnsibleRackhdConfigPath)
-	} else {
+	config.SetConfigFile(envAnsibleRackhdConfigPath)
+	if envAnsibleRackhdConfigPath == "" {
 		config.AddConfigPath(".")
 		config.SetConfigName("config")
 		config.SetConfigType("yml")
 	}
+
 	err = config.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	var rackhdUrl string
-	if envRackhdApiUrl != "" {
-		rackhdUrl = envRackhdApiUrl
-	} else {
+	rackhdUrl := envRackhdApiUrl
+	if rackhdUrl == "" {
 		rackhdUrl = config.GetString("rackhd_api_url")
 	}
 
@@ -90,6 +88,7 @@ func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error)
 		var err error
 		props.groups, err = rackhdClient.GetAllTags()
 		if err != nil {
+
 			return nil, nil, err
 		}
 	}
@@ -97,10 +96,11 @@ func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error)
 	for _, group := range props.groups {
 		result, err := rackhdClient.GetTaggedNodesIpAddress(group)
 		if err != nil {
+
 			return groups, nil, err
 		}
-		hostsFoundByTag := len(result) == 0
-		if !hostsFoundByTag {
+
+		if len(result) != 0 {
 			groupItem := GroupItem{}
 			for _, item := range result {
 				hostvars[item] = HostvarsItem{
@@ -143,29 +143,29 @@ func handleList(props props) (map[string]interface{}, error) {
 func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars) (map[string]interface{}, Hostvars, error) {
 
 	if props.filterGroup == "" {
+
 		return groups, hostvars, nil
 	}
 
 	props.groups = []string{props.filterGroup}
 	filterGroup, _, err := getGroupNodesAndVars(props)
 	if err != nil {
+
 		return groups, hostvars, err
 	}
 
 	filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
 
 	if len(filterGroupItem.Hosts) == 0 {
+
 		return make(map[string]interface{}), Hostvars{}, nil
 	}
 
 	for groupName, groupItem := range groups {
 		groupItem, _ := groupItem.(GroupItem)
 		intersectionOfGroups := IntersectionOfTwoSlices(groupItem.Hosts, filterGroupItem.Hosts)
-		if len(intersectionOfGroups) > 0 {
-			groups[groupName] =
-				GroupItem{
-					Hosts: intersectionOfGroups}
-		} else {
+		groups[groupName] = GroupItem{Hosts: intersectionOfGroups}
+		if len(intersectionOfGroups) == 0 {
 			delete(groups, groupName)
 		}
 	}
