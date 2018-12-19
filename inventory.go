@@ -6,7 +6,6 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/mlimaloureiro/ansible-rackhd-inventory/rackhd"
 	"github.com/spf13/viper"
-	"os"
 )
 
 const (
@@ -45,22 +44,33 @@ func main() {
 func getPropsFromConfig() props {
 	config := viper.New()
 
-	envRackhdApiUrl, envRackhdApiUrlOk := os.LookupEnv(RackHdApiUrlEnvVarName)
-	envAnsibleRackhdConfigPath, envAnsibleRackhdConfigPathOk := os.LookupEnv(AnsibleRackHdConfigPath)
-	if envAnsibleRackhdConfigPathOk {
+	err := config.BindEnv(RackHdApiUrlEnvVarName)
+	if err != nil {
+		panic(fmt.Errorf("Fatal error binding environment variable: %s \n", err))
+	}
+
+	err = config.BindEnv(AnsibleRackHdConfigPath)
+	if err != nil {
+		panic(fmt.Errorf("Fatal error binding environment variable: %s \n", err))
+	}
+
+	envRackhdApiUrl := config.GetString(RackHdApiUrlEnvVarName)
+	envAnsibleRackhdConfigPath := config.GetString(AnsibleRackHdConfigPath)
+
+	if envAnsibleRackhdConfigPath != "" {
 		config.SetConfigFile(envAnsibleRackhdConfigPath)
 	} else {
 		config.AddConfigPath(".")
 		config.SetConfigName("config")
 		config.SetConfigType("yml")
 	}
-	err := config.ReadInConfig()
+	err = config.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
 	var rackhdUrl string
-	if envRackhdApiUrlOk {
+	if envRackhdApiUrl != "" {
 		rackhdUrl = envRackhdApiUrl
 	} else {
 		rackhdUrl = config.GetString("rackhd_api_url")
