@@ -114,31 +114,10 @@ func handleList(props props) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	if props.filterGroup != "" {
-		props.groups = []string{props.filterGroup}
-		filterGroup, _, err := getGroupNodesAndVars(props)
+	groups, hostvars, err = filterByGroup(props, groups, hostvars)
+	if err != nil {
 
-		if err != nil {
-			return nil, err
-		}
-
-		filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
-		for groupName, groupItem := range groups {
-			groupItem, _ := groupItem.(GroupItem)
-			intersectionOfGroups := IntersectionOfTwoSlices(groupItem.Hosts, filterGroupItem.Hosts)
-			if len(intersectionOfGroups) > 0 {
-				groups[groupName] =
-					GroupItem{
-						Hosts: intersectionOfGroups}
-			}
-		}
-
-		for hostname := range hostvars {
-			if !ValueInSlice(filterGroupItem.Hosts, hostname) {
-				delete(hostvars, hostname)
-			}
-		}
-
+		return nil, err
 	}
 
 	for groupName, groupItem := range groups {
@@ -149,4 +128,37 @@ func handleList(props props) (map[string]interface{}, error) {
 	}
 
 	return output, err
+}
+
+func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars) (map[string]interface{}, Hostvars, error) {
+
+	if props.filterGroup == "" {
+		return groups, hostvars, nil
+	}
+
+	props.groups = []string{props.filterGroup}
+	filterGroup, _, err := getGroupNodesAndVars(props)
+
+	if err != nil {
+		return groups, hostvars, err
+	}
+
+	filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
+	for groupName, groupItem := range groups {
+		groupItem, _ := groupItem.(GroupItem)
+		intersectionOfGroups := IntersectionOfTwoSlices(groupItem.Hosts, filterGroupItem.Hosts)
+		if len(intersectionOfGroups) > 0 {
+			groups[groupName] =
+				GroupItem{
+					Hosts: intersectionOfGroups}
+		}
+	}
+
+	for hostname := range hostvars {
+		if !ValueInSlice(filterGroupItem.Hosts, hostname) {
+			delete(hostvars, hostname)
+		}
+	}
+
+	return groups, hostvars, nil
 }
