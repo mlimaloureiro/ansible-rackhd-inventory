@@ -38,7 +38,20 @@ func main() {
 
 		return
 	}
+	if args.Host != "" {
+		output, err := handleHost(args.Host, props)
+		if err != nil {
+			panic(fmt.Errorf("Fatal error handling host: %s \n", err))
+		}
+		if output.AnsibleSSHHost != "" && output.AnsibleSSHHostPrivate != "" {
+			marshalResult, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(marshalResult))
+		} else {
+			fmt.Println("{}")
+		}
 
+		return
+	}
 }
 
 func getPropsFromConfig() props {
@@ -177,4 +190,17 @@ func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars
 	}
 
 	return groups, hostvars, nil
+}
+
+func handleHost(host string, props props) (HostvarsItem, error) {
+	_, hostvars, err := getGroupNodesAndVars(props)
+	if err != nil {
+
+		return HostvarsItem{}, err
+	}
+
+	if hostvarsItem, ok := hostvars[host]; ok {
+		return hostvarsItem, nil
+	}
+	return HostvarsItem{}, nil
 }
