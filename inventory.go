@@ -138,12 +138,16 @@ func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars
 
 	props.groups = []string{props.filterGroup}
 	filterGroup, _, err := getGroupNodesAndVars(props)
-
 	if err != nil {
 		return groups, hostvars, err
 	}
 
 	filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
+
+	if len(filterGroupItem.Hosts) == 0 {
+		return make(map[string]interface{}), Hostvars{}, nil
+	}
+
 	for groupName, groupItem := range groups {
 		groupItem, _ := groupItem.(GroupItem)
 		intersectionOfGroups := IntersectionOfTwoSlices(groupItem.Hosts, filterGroupItem.Hosts)
