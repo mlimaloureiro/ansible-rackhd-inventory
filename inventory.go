@@ -39,7 +39,20 @@ func main() {
 
 		return
 	}
+	if args.Host != "" {
+		output, err := handleHost(args.Host, props)
+		if err != nil {
+			panic(fmt.Errorf("Fatal error handling host: %s \n", err))
+		}
+		if output.AnsibleSSHHost != "" && output.AnsibleSSHHostPrivate != "" {
+			marshalResult, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(marshalResult))
+		} else {
+			fmt.Println("{}")
+		}
 
+		return
+	}
 }
 
 func getPropsFromConfig() props {
@@ -80,6 +93,7 @@ func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error)
 		var err error
 		props.groups, err = rackhdClient.GetAllTags()
 		if err != nil {
+
 			return nil, nil, err
 		}
 	}
@@ -87,6 +101,7 @@ func getGroupNodesAndVars(props props) (map[string]interface{}, Hostvars, error)
 	for _, group := range props.groups {
 		result, err := rackhdClient.GetTaggedNodesIpAddress(group)
 		if err != nil {
+
 			return groups, nil, err
 		}
 		hostsFoundByTag := len(result) == 0
@@ -133,18 +148,21 @@ func handleList(props props) (map[string]interface{}, error) {
 func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars) (map[string]interface{}, Hostvars, error) {
 
 	if props.filterGroup == "" {
+
 		return groups, hostvars, nil
 	}
 
 	props.groups = []string{props.filterGroup}
 	filterGroup, _, err := getGroupNodesAndVars(props)
 	if err != nil {
+
 		return groups, hostvars, err
 	}
 
 	filterGroupItem, _ := filterGroup[props.filterGroup].(GroupItem)
 
 	if len(filterGroupItem.Hosts) == 0 {
+
 		return make(map[string]interface{}), Hostvars{}, nil
 	}
 
@@ -167,4 +185,17 @@ func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars
 	}
 
 	return groups, hostvars, nil
+}
+
+func handleHost(host string, props props) (HostvarsItem, error) {
+	_, hostvars, err := getGroupNodesAndVars(props)
+	if err != nil {
+
+		return HostvarsItem{}, err
+	}
+
+	if hostvarsItem, ok := hostvars[host]; ok {
+		return hostvarsItem, nil
+	}
+	return HostvarsItem{}, nil
 }

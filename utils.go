@@ -23,5 +23,6 @@ func IntersectionOfTwoSlices(sliceA []string, sliceB []string) []string {
 			intersectionSlice = append(intersectionSlice, value)
 		}
 	}
+
 	return intersectionSlice
 }
