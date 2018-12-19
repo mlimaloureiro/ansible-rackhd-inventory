@@ -155,6 +155,8 @@ func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars
 			groups[groupName] =
 				GroupItem{
 					Hosts: intersectionOfGroups}
+		} else {
+			delete(groups, groupName)
 		}
 	}
 
