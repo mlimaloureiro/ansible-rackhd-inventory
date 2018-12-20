@@ -43,12 +43,14 @@ func main() {
 		if err != nil {
 			panic(fmt.Errorf("Fatal error handling host: %s \n", err))
 		}
+
 		if output.AnsibleSSHHost != "" && output.AnsibleSSHHostPrivate != "" {
 			marshalResult, _ := json.MarshalIndent(output, "", "  ")
 			fmt.Println(string(marshalResult))
-		} else {
-			fmt.Println("{}")
+
+			return
 		}
+		fmt.Println("{}")
 
 		return
 	}
@@ -200,7 +202,9 @@ func handleHost(host string, props props) (HostvarsItem, error) {
 	}
 
 	if hostvarsItem, ok := hostvars[host]; ok {
+
 		return hostvarsItem, nil
 	}
+
 	return HostvarsItem{}, nil
 }
