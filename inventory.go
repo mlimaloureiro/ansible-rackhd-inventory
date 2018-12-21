@@ -145,12 +145,15 @@ func handleList(props props) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	groups["ungrouped"] = GroupItem{Hosts: make([]string, 0)}
 	for groupName, groupItem := range groups {
 		output[groupName] = groupItem
 	}
+
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
+	output["all"] = getAllHostsAndGroups(hostvars, groups)
 
 	return output, err
 }
@@ -207,4 +210,19 @@ func handleHost(host string, props props) (HostvarsItem, error) {
 	}
 
 	return HostvarsItem{}, nil
+}
+
+func getAllHostsAndGroups(hostvars Hostvars, groups map[string]interface{}) map[string]interface{} {
+	allGroups := make([]string, 0, len(groups))
+	allMap := make(map[string]interface{})
+	for hostName, hostvar := range hostvars {
+		allMap[hostName] = hostvar
+	}
+
+	for groupName := range groups {
+		allGroups = append(allGroups, groupName)
+	}
+	allMap["children"] = allGroups
+
+	return allMap
 }
