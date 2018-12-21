@@ -87,3 +87,25 @@ func TestHandleList(t *testing.T) {
 		t.Errorf("%s\n", err)
 	}
 }
+
+func TestHandleHost(t *testing.T) {
+	const hostname = "192.168.1.130"
+	err := setEnvironmentVars(t)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
+	props := getPropsFromConfig()
+
+	hostvarItem, err := handleHost(hostname, props)
+	if hostvarItem.AnsibleSSHHostPrivate != hostname {
+		t.Errorf("\n%s \n%s", hostvarItem.AnsibleSSHHostPrivate, hostname)
+	}
+	if hostvarItem.AnsibleSSHHost != hostname {
+		t.Errorf("\n%s \n%s", hostvarItem.AnsibleSSHHost, hostname)
+	}
+
+	err = unsetEnvironmentVars(t)
+	if err != nil {
+		t.Errorf("%s\n", err)
+	}
+}
