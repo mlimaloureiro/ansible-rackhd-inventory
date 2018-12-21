@@ -223,5 +223,6 @@ func getAllHostsAndGroups(hostvars Hostvars, groups map[string]interface{}) map[
 		allGroups = append(allGroups, groupName)
 	}
 	allMap["children"] = allGroups
+
 	return allMap
 }
