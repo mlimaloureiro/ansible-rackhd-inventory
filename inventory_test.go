@@ -6,11 +6,10 @@ import (
 )
 
 const (
-	rackhdUrl  = "http://127.0.0.1:5000"
 	configPath = "./config.test.yaml"
 )
 
-func setEnvironmentVars(t *testing.T) error {
+func setEnvironmentVars(rackhdUrl string, configPath string) error {
 	err := os.Setenv(RackHdApiUrlEnvVarName, rackhdUrl)
 	if err != nil {
 
@@ -25,7 +24,7 @@ func setEnvironmentVars(t *testing.T) error {
 	return nil
 }
 
-func unsetEnvironmentVars(t *testing.T) error {
+func unsetEnvironmentVars() error {
 	err := os.Unsetenv(RackHdApiUrlEnvVarName)
 	if err != nil {
 
@@ -41,14 +40,15 @@ func unsetEnvironmentVars(t *testing.T) error {
 }
 
 func TestConfigReads(t *testing.T) {
-	err := setEnvironmentVars(t)
+	server := RackhdStubServerWithAllEndpoints()
+	defer server.Close()
+	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
-
 	props := getPropsFromConfig()
-	if props.rackhdUrl != rackhdUrl {
-		t.Errorf("\n%s  \n%s", props.rackhdUrl, rackhdUrl)
+	if props.rackhdUrl != server.URL {
+		t.Errorf("\n%s  \n%s", props.rackhdUrl, server.URL)
 	}
 	if len(props.groups) != 3 {
 		t.Errorf("\n%d  \n%d", len(props.groups), 3)
@@ -60,14 +60,16 @@ func TestConfigReads(t *testing.T) {
 		t.Errorf("\n%s  \n%s", props.filterGroup, "new")
 	}
 
-	err = unsetEnvironmentVars(t)
+	err = unsetEnvironmentVars()
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
 }
 
 func TestHandleList(t *testing.T) {
-	err := setEnvironmentVars(t)
+	server := RackhdStubServerWithAllEndpoints()
+	defer server.Close()
+	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
@@ -82,15 +84,17 @@ func TestHandleList(t *testing.T) {
 	if value, ok := output["ungrouped"]; !ok {
 		t.Errorf("Expected key 'ungrouped' got %s\n", value)
 	}
-	err = unsetEnvironmentVars(t)
+	err = unsetEnvironmentVars()
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
 }
 
 func TestHandleHost(t *testing.T) {
+	server := RackhdStubServerWithAllEndpoints()
+	defer server.Close()
 	const hostname = "192.168.1.130"
-	err := setEnvironmentVars(t)
+	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
@@ -104,7 +108,7 @@ func TestHandleHost(t *testing.T) {
 		t.Errorf("\n%s \n%s", hostvarItem.AnsibleSSHHost, hostname)
 	}
 
-	err = unsetEnvironmentVars(t)
+	err = unsetEnvironmentVars()
 	if err != nil {
 		t.Errorf("%s\n", err)
 	}
