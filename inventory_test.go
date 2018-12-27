@@ -40,7 +40,7 @@ func unsetEnvironmentVars() error {
 }
 
 func TestConfigReads(t *testing.T) {
-	server := RackhdStubServerWithAllEndpoints()
+	server := newRackhdTestServer()
 	defer server.Close()
 	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
@@ -67,7 +67,7 @@ func TestConfigReads(t *testing.T) {
 }
 
 func TestHandleList(t *testing.T) {
-	server := RackhdStubServerWithAllEndpoints()
+	server := newRackhdTestServer()
 	defer server.Close()
 	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
@@ -91,7 +91,7 @@ func TestHandleList(t *testing.T) {
 }
 
 func TestHandleHost(t *testing.T) {
-	server := RackhdStubServerWithAllEndpoints()
+	server := newRackhdTestServer()
 	defer server.Close()
 	const hostname = "192.168.1.130"
 	err := setEnvironmentVars(server.URL, configPath)

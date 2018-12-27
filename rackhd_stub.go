@@ -15,7 +15,6 @@ func TagsHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
 	return
 }
@@ -56,7 +55,6 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 
 		return
 	}
@@ -94,7 +92,6 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 
 		return
 	}
@@ -122,7 +119,6 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 
 		return
 	}
@@ -133,7 +129,6 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
 	return
 }
@@ -351,16 +346,20 @@ func LookupsHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
 	return
 }
 
-func RackhdStubServerWithAllEndpoints() *httptest.Server {
+func newRackhdTestServer() *httptest.Server {
+
+	return httptest.NewServer(RackhdPathHandlers())
+}
+
+func RackhdPathHandlers() http.Handler {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/current/tags/", TagsHandler).Methods("GET")
 	r.HandleFunc("/api/current/tags/{tag}/nodes", TagsNodesHandler).Methods("GET")
 	r.HandleFunc("/api/2.0/lookups", LookupsHandler).Methods("GET")
 
-	return httptest.NewServer(r)
+	return r
 }
