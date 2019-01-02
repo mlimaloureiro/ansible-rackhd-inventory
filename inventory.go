@@ -208,7 +208,7 @@ func handleHost(host string, props props) (HostvarsItem, error) {
 }
 
 func getAllHostsAndGroups(hostvars Hostvars, groups map[string]interface{}) map[string]interface{} {
-	allGroups := make([]string, 0, len(groups))
+	var allGroups []string
 	allMap := make(map[string]interface{})
 	for hostName, hostvar := range hostvars {
 		allMap[hostName] = hostvar
