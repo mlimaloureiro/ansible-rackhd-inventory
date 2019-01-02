@@ -24,21 +24,6 @@ func setEnvironmentVars(rackhdUrl string, configPath string) error {
 	return nil
 }
 
-func unsetEnvironmentVars() error {
-	err := os.Unsetenv(RackHdApiUrlEnvVarName)
-	if err != nil {
-
-		return err
-	}
-	err = os.Unsetenv(AnsibleRackHdConfigPath)
-	if err != nil {
-
-		return err
-	}
-
-	return nil
-}
-
 func TestConfigReads(t *testing.T) {
 	server := newRackhdTestServer()
 	defer server.Close()
@@ -60,10 +45,6 @@ func TestConfigReads(t *testing.T) {
 		t.Errorf("\n%s  \n%s", props.filterGroup, "new")
 	}
 
-	err = unsetEnvironmentVars()
-	if err != nil {
-		t.Errorf("%s\n", err)
-	}
 }
 
 func TestHandleList(t *testing.T) {
@@ -84,10 +65,7 @@ func TestHandleList(t *testing.T) {
 	if value, ok := output["ungrouped"]; !ok {
 		t.Errorf("Expected key 'ungrouped' got %s\n", value)
 	}
-	err = unsetEnvironmentVars()
-	if err != nil {
-		t.Errorf("%s\n", err)
-	}
+
 }
 
 func TestHandleHost(t *testing.T) {
@@ -108,8 +86,4 @@ func TestHandleHost(t *testing.T) {
 		t.Errorf("\n%s \n%s", hostvarItem.AnsibleSSHHost, hostname)
 	}
 
-	err = unsetEnvironmentVars()
-	if err != nil {
-		t.Errorf("%s\n", err)
-	}
 }
