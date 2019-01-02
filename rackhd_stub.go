@@ -22,7 +22,7 @@ func TagsHandler(w http.ResponseWriter, r *http.Request) {
 func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
-	if vars["tag"] == "ceph-node" {
+	if vars["tag"] == TagCephNode {
 		_, err := w.Write([]byte(`[
             {
                 "sku": "5e2de23c-5624-4814-966b-95f9c34435be",
@@ -59,7 +59,7 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if vars["tag"] == "ceph-mon" {
+	if vars["tag"] == TagCephMon {
 		_, err := w.Write([]byte(`[
             {
                 "sku": "5e2ff-5624-4814-966b-95s9c34435be",
@@ -96,7 +96,7 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if vars["tag"] == "new" {
+	if vars["tag"] == TagNew {
 		_, err := w.Write([]byte(`[
             {
                 "sku": "5e2de23c-5624-4814-966b-95f9c34435be", "name": "6c:92:bf:48:70:e5",
@@ -123,7 +123,7 @@ func TagsNodesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := fmt.Fprintf(w, `[]`)
+	_, err := fmt.Fprintf(w, EmptyBoxBrackets)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -357,9 +357,9 @@ func newRackhdTestServer() *httptest.Server {
 
 func RackhdPathHandlers() http.Handler {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/current/tags/", TagsHandler).Methods("GET")
-	r.HandleFunc("/api/current/tags/{tag}/nodes", TagsNodesHandler).Methods("GET")
-	r.HandleFunc("/api/2.0/lookups", LookupsHandler).Methods("GET")
+	r.HandleFunc(tagsPath, TagsHandler).Methods("GET")
+	r.HandleFunc(tagsPathTemplate, TagsNodesHandler).Methods("GET")
+	r.HandleFunc(lookupPath, LookupsHandler).Methods("GET")
 
 	return r
 }
