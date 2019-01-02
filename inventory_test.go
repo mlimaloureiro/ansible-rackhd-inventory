@@ -39,11 +39,11 @@ func TestConfigReads(t *testing.T) {
 	if len(props.groups) != 3 {
 		t.Errorf("\n%d  \n%d", len(props.groups), 3)
 	}
-	if props.groups[2] != "test_group_2" {
-		t.Errorf("\n%s  \n%s", props.groups[2], "test_group_2")
+	if props.groups[1] != TagCephNode {
+		t.Errorf("\n%s  \n%s", props.groups[2], TagCephNode)
 	}
-	if props.filterGroup != "new" {
-		t.Errorf("\n%s  \n%s", props.filterGroup, "new")
+	if props.filterGroup != TagNew {
+		t.Errorf("\n%s  \n%s", props.filterGroup, TagNew)
 	}
 
 }
