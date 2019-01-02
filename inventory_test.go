@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -25,7 +26,7 @@ func setEnvironmentVars(rackhdUrl string, configPath string) error {
 }
 
 func TestConfigReads(t *testing.T) {
-	server := newRackhdTestServer()
+	server := httptest.NewServer(RackhdPathHandlers())
 	defer server.Close()
 	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
@@ -48,7 +49,7 @@ func TestConfigReads(t *testing.T) {
 }
 
 func TestHandleList(t *testing.T) {
-	server := newRackhdTestServer()
+	server := httptest.NewServer(RackhdPathHandlers())
 	defer server.Close()
 	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
@@ -69,7 +70,7 @@ func TestHandleList(t *testing.T) {
 }
 
 func TestHandleHost(t *testing.T) {
-	server := newRackhdTestServer()
+	server := httptest.NewServer(RackhdPathHandlers())
 	defer server.Close()
 	const hostname = "192.168.1.130"
 	err := setEnvironmentVars(server.URL, configPath)
