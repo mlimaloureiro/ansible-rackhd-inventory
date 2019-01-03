@@ -3,7 +3,7 @@ rackhd_api_url: http://127.0.0.1:5000
 # what groups do you want to create from your tags in rackhd ?
 # a tag in rackhd will create a group
 groups:
-  - test_group_0
-  - test_group_1
+  - ceph-mon
+  - ceph-node
   - test_group_2
-filter_group: something_to_filter
+filter_group: new

@@ -8,11 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	RackHdApiUrlEnvVarName  = "RACK_HD_API_URL"
-	AnsibleRackHdConfigPath = "ANSIBLE_RACKHD_CONFIG_PATH"
-)
-
 type props struct {
 	rackhdUrl   string
 	groups      []string
@@ -33,12 +28,27 @@ func main() {
 		if err != nil {
 			panic(fmt.Errorf("Fatal error handling list: %s \n", err))
 		}
-		marshalResult, _ := json.MarshalIndent(output, "", "  ")
+		marshalResult, _ := json.MarshalIndent(output, EmptyString, TwoSpaceString)
 		fmt.Println(string(marshalResult))
 
 		return
 	}
+	if args.Host != EmptyString {
+		output, err := handleHost(args.Host, props)
+		if err != nil {
+			panic(fmt.Errorf("Fatal error handling host: %s \n", err))
+		}
 
+		if output.AnsibleSSHHost != EmptyString && output.AnsibleSSHHostPrivate != EmptyString {
+			marshalResult, _ := json.MarshalIndent(output, EmptyString, TwoSpaceString)
+			fmt.Println(string(marshalResult))
+
+			return
+		}
+		fmt.Println(EmptyBrackets)
+
+		return
+	}
 }
 
 func getPropsFromConfig() props {
@@ -58,7 +68,7 @@ func getPropsFromConfig() props {
 	envAnsibleRackhdConfigPath := config.GetString(AnsibleRackHdConfigPath)
 
 	config.SetConfigFile(envAnsibleRackhdConfigPath)
-	if envAnsibleRackhdConfigPath == "" {
+	if envAnsibleRackhdConfigPath == EmptyString {
 		config.AddConfigPath(".")
 		config.SetConfigName("config")
 		config.SetConfigType("yml")
@@ -70,7 +80,7 @@ func getPropsFromConfig() props {
 	}
 
 	rackhdUrl := envRackhdApiUrl
-	if rackhdUrl == "" {
+	if rackhdUrl == EmptyString {
 		rackhdUrl = config.GetString("rackhd_api_url")
 	}
 
@@ -130,19 +140,22 @@ func handleList(props props) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	groups["ungrouped"] = GroupItem{Hosts: make([]string, 0)}
 	for groupName, groupItem := range groups {
 		output[groupName] = groupItem
 	}
+
 	output["_meta"] = Meta{
 		Hostvars: hostvars,
 	}
+	output["all"] = getAllHostsAndGroups(hostvars, groups)
 
 	return output, err
 }
 
 func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars) (map[string]interface{}, Hostvars, error) {
 
-	if props.filterGroup == "" {
+	if props.filterGroup == EmptyString {
 
 		return groups, hostvars, nil
 	}
@@ -177,4 +190,34 @@ func filterByGroup(props props, groups map[string]interface{}, hostvars Hostvars
 	}
 
 	return groups, hostvars, nil
+}
+
+func handleHost(host string, props props) (HostvarsItem, error) {
+	_, hostvars, err := getGroupNodesAndVars(props)
+	if err != nil {
+
+		return HostvarsItem{}, err
+	}
+
+	if hostvarsItem, ok := hostvars[host]; ok {
+
+		return hostvarsItem, nil
+	}
+
+	return HostvarsItem{}, nil
+}
+
+func getAllHostsAndGroups(hostvars Hostvars, groups map[string]interface{}) map[string]interface{} {
+	var allGroups []string
+	allMap := make(map[string]interface{})
+	for hostName, hostvar := range hostvars {
+		allMap[hostName] = hostvar
+	}
+
+	for groupName := range groups {
+		allGroups = append(allGroups, groupName)
+	}
+	allMap["children"] = allGroups
+
+	return allMap
 }
