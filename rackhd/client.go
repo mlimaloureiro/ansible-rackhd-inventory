@@ -11,7 +11,6 @@ const (
 	tagPathTemplate = "/api/current/tags/%s/nodes"
 	lookupPath      = "/api/2.0/lookups"
 	tagsPath        = "/api/current/tags"
-	nodesPath       = "/api/current/nodes"
 )
 
 // Client config
@@ -25,7 +24,9 @@ type NodesWithTag []ResponseIdItem
 
 // ResponseItem
 type ResponseIdItem struct {
-	ID string `json:"id"`
+	ID   string `json:"id"`
+	// name in response equals to the machine mac address
+	MacAddress string `json:"name"`
 }
 
 // LookupTable holds a list of node ids and associated ip addresses
@@ -33,9 +34,10 @@ type LookupTable []LookupItem
 
 // LookupItem has the node id and ip address
 type LookupItem struct {
-	ID        string `json:"id"`
-	Node      string `json:"node"`
-	IpAddress string `json:"ipAddress"`
+	ID         string `json:"id"`
+	Node       string `json:"node"`
+	IpAddress  string `json:"ipAddress"`
+	MacAddress string `json:"macAddress"`
 }
 
 // TagList holds a list of all tags
@@ -116,9 +118,14 @@ func (c Client) request(path string) ([]byte, error) {
 
 func (c Client) filterIpAddresses(lookupTable LookupTable, nodes NodesWithTag) []string {
 	var ipAddresses []string
+	var isActiveNode bool
 	for _, node := range nodes {
 		for _, lookupItem := range lookupTable {
-			if lookupItem.IpAddress != "" && lookupItem.Node == node.ID {
+			isActiveNode = lookupItem.IpAddress != "" &&
+				lookupItem.Node == node.ID &&
+				lookupItem.MacAddress == node.MacAddress
+
+			if isActiveNode {
 				ipAddresses = append(ipAddresses, lookupItem.IpAddress)
 			}
 		}
