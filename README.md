@@ -69,7 +69,7 @@ and with ansible
 ### Configuration
 
 Available configuration:
-
+- Config file `config.yaml`
 ```
 rackhd_api_url: http://192.168.1.2:8080
 # what groups do you want to create from your tags in rackhd ?
@@ -78,3 +78,6 @@ groups:
   - ceph-node
   - ceph-mon
 ```
+- Environment vars:
+    - `RACK_HD_API_URL` - Overrides the parameter set in `config.yaml`
+    - `ANSIBLE_RACKHD_CONFIG_PATH` - Specifies the location of the config file
