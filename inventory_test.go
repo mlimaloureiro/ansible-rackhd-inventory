@@ -72,7 +72,7 @@ func TestHandleList(t *testing.T) {
 func TestHandleHost(t *testing.T) {
 	server := httptest.NewServer(RackhdPathHandlers())
 	defer server.Close()
-	const hostname = "192.168.1.130"
+	const hostname = "192.168.1.137"
 	err := setEnvironmentVars(server.URL, configPath)
 	if err != nil {
 		t.Errorf("%s\n", err)

@@ -1,11 +1,26 @@
 package main
 
 import (
-	"ansible-rackhd-inventory/rackhd"
 	"encoding/json"
 	"fmt"
 	"github.com/alexflint/go-arg"
+	"github.com/mlimaloureiro/ansible-rackhd-inventory/rackhd"
 	"github.com/spf13/viper"
+)
+
+const (
+	RackHdApiUrlEnvVarName  = "RACK_HD_API_URL"
+	AnsibleRackHdConfigPath = "ANSIBLE_RACKHD_CONFIG_PATH"
+	EmptyString             = ""
+	TwoSpaceString          = "  "
+	EmptyBrackets           = "{}"
+	EmptyBoxBrackets        = `[]`
+	TagCephNode             = "ceph-node"
+	TagCephMon              = "ceph-mon"
+	TagNew                  = "new"
+	lookupPath              = "/api/2.0/lookups"
+	tagsPath                = "/api/current/tags"
+	tagsPathTemplate        = "/api/current/tags/{tag}/nodes"
 )
 
 type props struct {
